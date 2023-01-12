@@ -35,3 +35,20 @@ while True:
     else:
         print("Invalid Option:")
         
+controllerKeyPart = r"SYSTEM\ControlSet001\Control\Class\{4d36e972-e325-11ce-bfc1-08002be10318}"
+
+with winreg.ConnectRegistry(None, winreg.HKEY_LOCAL_MACHINE) as hkey:
+    controllerKeyFolders = [("\\000" + str(item) if item < 10 else "\\00" + str(item)) for item in range(0, 21)]
+    for keyFolder in controllerKeyFolders:
+        try:
+            with winreg.OpenKey(hkey, controllerKeyPart + keyFolder, 0, winreg.KEY_ALL_ACCESS) as regkey:
+                try:
+                    count = 0
+                    while True:
+                        name, value, type = winreg.EnumValue(regkey, count)
+                        count = count + 1
+                        if name == "NetCfgInstanceId" and value == macAddresses[int(option)][1]:
+                            newMacAddress = macToChangeTo[int(updateOption)]
+                            winreg.SetValueEx(regkey, "NetworkAddress", 0, winreg.REG_SZ, newMacAddress)
+                            print("Succesfully matched Transport Number")
+                            
