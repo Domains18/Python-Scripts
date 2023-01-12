@@ -25,4 +25,13 @@ for index, item in enumerate(macAddresses):
 option = input("Select The Menu item corresponding to the MAC that you want to change: ")
 
 while True:
-    print(W)        
+    print("Which MAC address do you want to use? This will change the Network Card's MAC address.")
+    for index, item in enumerate(macToChangeTo):
+        print(f"{index} - Mac Address: {item}")
+    updateOption = input("Select the Menu item Number corresponding to the MAC address the new MAC address that you want to use")
+    if int(updateOption) >= 0 and int(updateOption) < len(macToChangeTo):
+        print(f"Changing MAC address to : {macToChangeTo[int(updateOption)]}")
+        break
+    else:
+        print("Invalid Option:")
+        
