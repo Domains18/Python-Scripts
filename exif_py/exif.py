@@ -1,7 +1,7 @@
 import os
 import sys
 from PIL import Image
-from PIL.ExifTags import TAGS
+from PIL.ExifTags import GPSTAGS, TAGS
 
 # def helper function
 
