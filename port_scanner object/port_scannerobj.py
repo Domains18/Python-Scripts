@@ -19,7 +19,7 @@ while True:
 while True:
     print("Enter port range in the format of 'min-max'")
     portRange= input("Enter port range: ")
-    if portRange = portRangePattern.search(portRange.replace(" ", "")):
+    if portRange == portRangePattern.search(portRange.replace(" ", "")):
         portMin = int(portRange.group().split("-")[0])
         portMax = int(portRange.group().split("-")[1])
         break
