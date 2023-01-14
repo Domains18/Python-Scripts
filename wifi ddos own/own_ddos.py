@@ -16,7 +16,7 @@ def sudoCheck():
 
 def findNic():
     result = subprocess.run(["iw", "dev"], capture_output=True).stdout.decode()
-    networkInterfaceControllers = wlan_code.findall(result)
+    networkInterfaceControllers = wlanCode.findall(result)
     return networkInterfaceControllers
 
 
