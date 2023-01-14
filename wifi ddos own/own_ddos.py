@@ -35,6 +35,7 @@ def setBandToMonitor(choice):
         subprocess.Popen(["airodump-ng", " --band", "bg", "-w", "file", "--write-interval", "1",
                          "output-format", "csv", wifiName], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
+
 def backupCsv():
     for fileName in os.listdir():
         if ".csv" in fileName:
@@ -44,8 +45,9 @@ def backupCsv():
             except:
                 print("Backup Folder Exists")
                 timestamp = datetime.now()
-                shutil.move(fileName, directory + "/backup" + str(timestamp) + "-" + fileName)
-                
+                shutil.move(fileName, directory + "/backup" +
+                            str(timestamp) + "-" + fileName)
+
 
 def checkForEssid(essid, lst):
     checkStatus = True
@@ -55,3 +57,43 @@ def checkForEssid(essid, lst):
         if essid in item["ESSID"]:
             checkStatus = False
     return checkStatus
+
+
+def wifiNetworkMenu():
+    activeWirelessNetworks = []
+    try:
+        while True:
+            subprocess.call("clear", shell=True)
+            for fileName in os.listdir():
+                fieldNames = ["BSSID", "First time seen", "Last time seen",
+                              "channel", "Speed", "Privacy", "Cipher",]
+                if ".csv" in fileName:
+                    with open(fileName, "r") as file:
+                        reader = csv.DictReader(file, fieldnames=fieldNames)
+                        for row in reader:
+                            if row["BSSID"] != "BSSID":
+                                if checkForEssid(row["BSSID"], activeWirelessNetworks):
+                                    activeWirelessNetworks.append(row)
+            print("Scanning for wireless networks...")
+            for index, network in enumerate(activeWirelessNetworks):
+                print(f"{index + 1} - {network['BSSID']}")
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\n Ready To Make Choice")
+    
+    while True:
+        try:
+            choice = int(input("Enter the number of the network you want to attack: "))
+            if choice > 0 and choice <= len(activeWirelessNetworks):
+                return activeWirelessNetworks[choice - 1]
+        except:
+            print("Invalid Choice")
+            
+def setIntoManagedMode(wifiName):
+    subprocess.run(["airmon-ng", "stop", wifiName])
+    subprocess.run(["ip", "link", "set", wifiName, "down"])
+    #moniter mode
+    subprocess.run(["iwconfig", wifiName, "mode", "managed"])
+    subprocess.run(["ip", "link", "set", wifiName, "up"])
+    subprocess.run(["service", "network-manager", "restart"])
+    
